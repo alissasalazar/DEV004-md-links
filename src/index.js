@@ -1,10 +1,10 @@
-import chalk from "chalk";
-import { api } from "./api.js";
+const api = require('./api.js');
 
-export const mdLinks = (path, options = {}) => {
+const mdLinks = (path, options = {}) => {
   return new Promise((resolve, reject) => {
     if (!api.existPath(path)) {
-      reject(chalk.red("La ruta introducida no existe"));
+      // eslint-disable-next-line prefer-promise-reject-errors
+      reject('La ruta introducida no existe')
     } else {
       if (!options.validate) {
         const validGetProp = api.getMdFiles(path) !== "Directorio vacio"
@@ -21,11 +21,11 @@ export const mdLinks = (path, options = {}) => {
   });
 };
 // // PROBAREMOS SI FUNCIONA MD LINKS, TRUE PARA QUE HAGA LA PETICION HTTP Y FALSE PARA QUE SOLO DEVUELVA LOS LINKS 
-// const result = mdLinks("./src/example.md", { validate: true });
-// result
-//   .then((res) => {
-//     console.log(res);
-//   })
-//   .catch((err) => {
-//     console.log(err);
-//   });
+const result = mdLinks("./src/example.md", { validate: false });
+result
+  .then((res) => {
+    console.log(res);
+  })
+  .catch((err) => {
+    console.log(err);
+  });

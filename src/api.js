@@ -1,9 +1,10 @@
-import chalk from "chalk";
-import fs from "fs";
-import path from "path";
-import fetch from "node-fetch";
+// const colors  = require("colors");
+const fs = require("fs");
+const path = require("path");
+// eslint-disable-next-line import/no-extraneous-dependencies
+const axios = require("axios");
 
-console.log(chalk.blue("Hello world!"));
+console.log("Hello world!");
 
 // valida si existe una ruta V/F
 const existPath = (route) => fs.existsSync(route);
@@ -13,6 +14,7 @@ const isAbs = (route) => path.isAbsolute(route);
 
 // Transformar de ruta relativa a ruta absoluta
 const changeRoute = (route) => (isAbs(route) ? route : path.resolve(route));
+console.log("ruta absoluta", changeRoute('./readme.md'))
 
 // Leer los archivos,nos dará el contenido del archivo
 const readArch = (route) => fs.readFileSync(route, "utf-8");
@@ -101,30 +103,30 @@ const getProp = (route) => {
   return arrayProp;
 };
 
-// colocar el status que tiene los links,usaremos fetch para realizar la promesa
+// colocar el status que tiene los links,usaremos axios para realizar la peticion http y conseguir el estado
 const validater = (arr) =>
   Promise.all(
     arr.map((obj) => {
-      return fetch(obj.href)
+      return axios.get(obj.href)
         .then((res) => {
-          const fetchProp = {
+          const axiosProp = {
             href: obj.href,
             text: obj.text.substring(0, 50),
             file: obj.file,
             status: res.status,
             message: res.ok ? "OK" : "FAIL",
           };
-          return fetchProp;
+          return axiosProp;
         })
         .catch(() => {
-          const fetchProp = {
+          const axiosProp = {
             href: obj.href,
             text: obj.text.substring(0, 50),
             file: obj.file,
             status: 400,
             message: "FAIL",
           };
-          return fetchProp;
+          return axiosProp;
         });
     }),
   );
@@ -132,7 +134,7 @@ const validater = (arr) =>
 // Se coloca un then al llamar a la función Validater porque el "all promise" tambien debe finalizar
 // validater(getProp("./readme.md")).then((val) => console.log(val));
 
-export const api = {
+module.exports = {
   existPath,
   isAbs,
   changeRoute,
