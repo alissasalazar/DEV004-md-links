@@ -39,6 +39,7 @@
         "arrow-body-style":0,
         "no-lonely-if":0,
         "no-else-return":0,
-        "implicit-arrow-linebreak":0
+        "implicit-arrow-linebreak":0,
+        "comma-dangle":0
     }
 }

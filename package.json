@@ -11,7 +11,7 @@
   },
   "dependencies": {
     "axios": "^1.3.4",
-    "chalk": "^5.2.0",
+    "colors": "^1.4.0",
     "jest": "^29.5.0"
   },
   "description": "* [1. Preámbulo](#1-preámbulo)\r * [2. Resumen del proyecto](#2-resumen-del-proyecto)\r * [3. Objetivos de aprendizaje](#3-objetivos-de-aprendizaje)\r * [4. Consideraciones generales](#4-consideraciones-generales)\r * [5. Criterios de aceptación mínimos del proyecto](#5-criterios-de-aceptación-mínimos-del-proyecto)\r * [6. Entregables](#6-entregables)\r * [7. Hacker edition](#7-hacker-edition)\r * [8. Pistas, tips y lecturas complementarias](#8-pistas-tips-y-lecturas-complementarias)\r * [9. Checklist](#9-checklist)\r * [10. Achicando el problema](#10-achicando-el-problema)",
@@ -34,6 +34,9 @@
   ],
   "author": "Alissa_Salazar",
   "license": "ISC",
+  "bin": {
+    "md-links": "./src/cli.js"
+  },
   "bugs": {
     "url": "https://github.com/alissasalazar/DEV004-md-links/issues"
   },
