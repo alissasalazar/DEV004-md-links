@@ -1,24 +1,23 @@
 /* eslint-disable prefer-promise-reject-errors */
 const colors = require("colors");
-
+const process = require("node:process");
 const fs = require("fs");
 const path = require("path");
 
 // eslint-disable-next-line import/no-extraneous-dependencies
+// Axios realiza peticiones http desde node.js,basado en promesas
 const axios = require("axios");
 
-// console.log("Hello world!");
+// Comprobar de forma síncrona si un archivo existe en la ruta dada o no --> (V/F)
+const existFile = (route) => fs.existsSync(route);
 
-// valida si existe una ruta V/F
-const existPath = (route) => fs.existsSync(route);
-
-// valida si es una ruta absoluta V/F
+// valida si es una ruta absoluta --> (V/F)
 const isAbs = (route) => path.isAbsolute(route);
 
-// Transformar de ruta relativa a ruta absoluta
+// Transformar de ruta relativa a ruta absoluta --> string
 const changeRoute = (route) => (isAbs(route) ? route : path.resolve(route));
 
-// Leer los archivos,nos dará el contenido del archivo
+// Leer los archivos,nos dará el contenido del archivo --> objeto de promesa
 const readArch = (route) =>
   new Promise((resolve, reject) => {
     fs.readFile(route, "utf-8", (err, data) => {
@@ -29,6 +28,7 @@ const readArch = (route) =>
       }
     });
   });
+
 // const result = readArch("./src/example2.md");
 // result
 //   .then((res) => {
@@ -38,13 +38,12 @@ const readArch = (route) =>
 //     console.log(err);
 //   });
 
-// Leer contenido del directorio, nos dará un array
+// Leer contenido del directorio --> array
 const readDir = (route) => fs.readdirSync(route, "utf-8");
 
-// Si es un directorio tendremos que unir el directorio con su base
-const joinRoute = (dir, base) => path.join(dir, base);
+//  Une los segmentos de ruta, especificados, en una sola ruta. --> una nueva ruta
+const joinRoute = (route, file) => path.join(route, file);
 
-// Validar si es archivo o directorio
 // Usando el metodo path.parse nos devolverá las propiedades del link y de ahi tomaremos "ext" para obtener la extension
 const hasExt = (route) => {
   if (path.parse(route).ext !== "") {
@@ -56,10 +55,11 @@ const hasExt = (route) => {
   return false;
 };
 // ------API-----
+// Validar si los archivos son md/ si es un directorio, tomar los archivos y validarlos
 
 const getMdFiles = (route) => {
   let mdFiles = [];
-  if (existPath(route)) {
+  if (existFile(route)) {
     const pathAbs = changeRoute(route);
     const typeFile = hasExt(pathAbs);
     if (typeFile) {
@@ -71,75 +71,102 @@ const getMdFiles = (route) => {
       }
     } else {
       // Leer todo el contenido del archivo
-      const contDir = readDir(pathAbs);
-      contDir.forEach((file) => {
-        // Unimos la ruta absoluta con el archivo
-        const unitePath = joinRoute(pathAbs, file);
-        // Usamos la recursividad para que obtenga los archivos ".md" nada más
-        const recursiveFunct = getMdFiles(unitePath);
-        mdFiles = mdFiles.concat(recursiveFunct);
-      });
-      return mdFiles.length !== 0 ? mdFiles : "Directorio Vacio";
+      const contDirect = readDir(pathAbs);
+      if (contDirect.length === 0) {
+        return "Directorio vacio";
+      } else {
+        contDirect.forEach((file) => {
+          // Unimos la ruta absoluta con el archivo
+          const unitePath = joinRoute(pathAbs, file);
+          // Usamos la recursividad para que obtenga los archivos ".md" nada más
+          const recursiveFunct = getMdFiles(unitePath);
+          mdFiles = mdFiles.concat(recursiveFunct);
+        });
+        return mdFiles
+      }
     }
   } else {
-    return "Ruta inexistente";
+    return "No se encontro la ruta indicada.Por favor revisar";
   }
 };
-
-// console.log("call getMdfiles", getMdFiles("./src/directorio"))
+// const result = getMdFiles("vacio");
+// console.log("que da result", result);
+// console.log("call getMdfiles", getMdFiles("./src/vacio"));
 // Para encontrar el url, nombre de url, y nombre + url usaremos expresiones regulares (Regex)
+
 const linkRegex = /https?:\/\/(www\.)?[A-z\d]+(\.[A-z]+)*(\/[A-z?=&-\d]*)*/g;
 const nameRegex = /\[[^\s]+(.+?)\]/gi;
 const nameLinkRegex = /\[(.+?)\]\((https?.+?)\)/g;
 
-// Conseguir las propiedades de los links en un array
+// console.log("hay un array de archivos md?", arrayOfMdFiles("./src/directorio"));
 
-const getProp = (route) => {
+// Filtrar solo los archivos markadown
+const justMdFiles = (ruta) => {
+  const arrmdFiles = getMdFiles(ruta).filter(
+    (e) =>
+      e !== "No es un archivo markdown" && e !== "No se encontro la ruta indicada.Por favor revisar"
+  );
+  return arrmdFiles;
+};
+// console.log("que da just", justMdFiles("./src/directorio/example3.md"))
+// Obtener array de promesas
+const arrayPromises = (ruta) =>
+  justMdFiles(ruta).map((file) => {
+    return readArch(file);
+  });
+// console.log("que es arrProm", arrayPromises("./src/directorio"));
+
+// Conseguir las propiedades de los links en un array
+const getPropertiesFiles = (route) => {
   return new Promise((resolve, reject) => {
-    const arrayProp = [];
-    const justFiles = getMdFiles(route).filter(
-      (e) => e !== "No es un archivo markdown" && e !== "Directorio Vacio"
-    );
-    justFiles.forEach((mdfile) => {
-      readArch(mdfile)
-        .then((file) => {
-          const matchLinks = file.match(nameLinkRegex);
-          if (matchLinks) {
-            matchLinks.forEach((link) => {
-              const href = link.match(linkRegex).join();
-              const text = link.match(nameRegex).join().slice(1, -1);
-              arrayProp.push({
-                href,
-                text,
-                file: route,
-              });
-            });
-            resolve(arrayProp);
-          } else {
-            // En el caso que hayan null
-            arrayProp.push({
-              href: "Los archivos no contienen links",
-              text: "",
+    const arrPropertiesFile = [];
+    Promise.all(arrayPromises(route))
+      .then((file) => {
+        const matchLinks = file.join().match(nameLinkRegex);
+        const arrayLine = file.join().split("\n");
+        if (matchLinks) {
+          matchLinks.forEach((link) => {
+            const href = link.match(linkRegex).join();
+            const text = link.match(nameRegex).join().slice(1, -1);
+            arrPropertiesFile.push({
+              href,
+              text,
               file: route,
+              lines: arrayLine,
             });
-            resolve(arrayProp);
-          }
-        })
-        .catch((err) => reject(err));
-    });
+          });
+          resolve(arrPropertiesFile);
+        } else {
+          // En caso que haya archivos null
+          arrPropertiesFile.push({
+            href: "Los archivos no contienen Links para validar",
+            text: "",
+            file: route,
+          });
+          resolve(arrPropertiesFile);
+        }
+      })
+      .catch((err) => {
+        reject(console.log("No se pudo obtener las propiedades del link", err));
+      });
   });
 };
-getProp("./src/direct")
-  .then((res) => {
-    console.log("respuesta de getProp", res);
-  })
-  .catch((err) => {
-    console.log("error de getProp", err);
-  });
-// colocar el status que tiene los links,usaremos axios para realizar la peticion http y conseguir el estado
+// getPropertiesFiles("./first.txt").catch((res) => console.log("que da de respuesta getProp", res))
+
+// Buscar en que linea se ubica el link
+const searchLineOfLink = (arrayLines, linktoSearch) => {
+  // En el arreglo de lineas debe encontrar el link = +1 / sino dar como resultado -1
+  const numberOfLink = arrayLines
+    .map((line, index) => (line.includes(linktoSearch) ? index + 1 : -1))
+    .filter((e) => e !== -1);
+  return numberOfLink;
+};
+
+// colocar el status que tiene los links,usaremos axios para realizar la peticion http y conseguir el estado --> promesa
 const validater = (arr) => {
   return Promise.all(
     arr.map((obj) => {
+      const line = searchLineOfLink(obj.lines, obj.href);
       return axios
         .get(obj.href)
         .then((res) => {
@@ -148,6 +175,7 @@ const validater = (arr) => {
             text: obj.text.substring(0, 50),
             file: obj.file,
             status: res.status,
+            lines: line,
             message: "OK",
           };
           return axiosProp;
@@ -158,6 +186,7 @@ const validater = (arr) => {
             text: obj.text.substring(0, 50),
             file: obj.file,
             status: `Fail ${err.message}`,
+            lines: line,
             message: "FAIL",
           };
           return axiosProp;
@@ -166,14 +195,8 @@ const validater = (arr) => {
   );
 };
 
-// const searchLineInText = (lineArr, textSearch) => {
-//   const numbLines = lineArr
-//     .map((line, index) => (line.includes(textSearch) ? index + 1 : -1))
-//     .filter((e) => e !== -1);
-//   return numbLines;
-// };
 module.exports = {
-  existPath,
+  existFile,
   isAbs,
   changeRoute,
   readArch,
@@ -181,6 +204,9 @@ module.exports = {
   joinRoute,
   hasExt,
   getMdFiles,
-  getProp,
+  getPropertiesFiles,
   validater,
+  justMdFiles,
+  arrayPromises,
+  process,
 };

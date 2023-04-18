@@ -1,6 +1,5 @@
 #!/usr/bin/env node
-const process = require("node:process");
-
+const api = require("./api.js");
 const {
   mdLinks,
   statsTotal,
@@ -9,13 +8,14 @@ const {
   colors,
 } = require("./index.js");
 
-const path = process.argv[2];
-let isValid = false;
+const proc = api.process;
+// Se selecciona la ruta
+const path = proc.argv[2];
 
 // No se coloca path
-if (process.argv[2] === undefined) {
+if (proc.argv[2] === undefined) {
   console.log("Por favor ingresar una ruta");
-} else if (process.argv[3] === undefined) {
+} else if (proc.argv[3] === undefined) {
   mdLinks(path, { validate: false })
     .then((res) => {
       console.log(res);
@@ -26,28 +26,30 @@ if (process.argv[2] === undefined) {
 }
 
 // No sabe que option colocar
-if (process.argv[2] === "--help") {
+if (proc.argv[2] === "--help") {
   console.log(
     colors.bgYellow(
-      "Puedes usar las opciones --validate, --stats o --validate--stats"
+      `"Puedes usar las siguientes opciones para validar los links de tu(s) archivo(s):
+      --validate: Revisa si tu link funciona o no, 
+      --stats: Te dará la cantidad total de links y cantidad de links unicos,
+      --validate--stats: Te dará la cantidad total de links,cantidad de links unicos y cantidad de links rotos"`
     )
   );
 } else {
-  isValid = process.argv[3] === "--validate";
-  mdLinks(path, { validate: isValid })
+  mdLinks(path, { validate: true })
     .then((res) => {
-      if (
-        (process.argv[4] === "--stats" && process.argv[3] === "--validate") || (process.argv[4] === "--validate" && process.argv[3] === "--stats")
-      ) {
-        console.log(`Total: ${statsTotal(res)}`);
-        console.log(`Unique: ${uniqueStats(res)}`);
-        console.log(`Broken: ${bronkenStats(res)}`);
-      } else if (process.argv[3] === "--stats") {
-        console.log(`Total: ${statsTotal(res)}`);
-        console.log(`Unique: ${uniqueStats(res)}`);
-      } else if (
-        process.argv[3] === "--validate" && process.argv[4] === undefined
-      ) {
+      const total = `Total: ${statsTotal(res)}`;
+      const unique = `Unique: ${uniqueStats(res)}`;
+      const broken = `Broken: ${bronkenStats(res)}`;
+      const option1 = proc.argv[4] === "--stats" && proc.argv[3] === "--validate";
+      const option2 = proc.argv[4] === "--validate" && proc.argv[3] === "--stats";
+      const option3 = proc.argv[3] === "--validate" && proc.argv[4] === undefined
+      
+      if (option1 || option2) {
+        console.log(`${total}\n${unique}\n${broken}`);
+      } else if (proc.argv[3] === "--stats") {
+        console.log(`${total}\n${unique}`);
+      } else if (option3) {
         console.log(res);
       }
     })
