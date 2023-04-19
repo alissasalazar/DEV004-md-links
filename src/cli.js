@@ -14,7 +14,7 @@ const path = proc.argv[2];
 
 // No se coloca path
 if (proc.argv[2] === undefined) {
-  console.log("Por favor ingresar una ruta");
+  console.log(colors.bgMagenta("Por favor ingresar una ruta y/o escribir '--help'"));
 } else if (proc.argv[3] === undefined) {
   mdLinks(path, { validate: false })
     .then((res) => {

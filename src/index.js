@@ -14,9 +14,9 @@ const mdLinks = (path, options = {}) => {
             .then((res) => {
               resolve(res);
             })
-            // .catch((err) => {
-            //   resolve(err);
-            // });
+            .catch((err) => {
+              resolve(err);
+            });
         } 
       } else {
         if (api.getMdFiles(path) !== "No se encontro la ruta indicada.Por favor revisar") {
@@ -28,9 +28,9 @@ const mdLinks = (path, options = {}) => {
                 resolve(val);
               });
             })
-            // .catch((err) => {
-            //   resolve(err);
-            // });
+            .catch((err) => {
+              resolve(err);
+            });
         } 
       }
     }
@@ -55,7 +55,7 @@ const uniqueStats = (links) => {
   return uniqueLinks.length;
 };
 // PROBAREMOS SI FUNCIONA MD LINKS, TRUE PARA QUE HAGA LA PETICION HTTP Y FALSE PARA QUE SOLO DEVUELVA LOS LINKS
-// const result = mdLinks("./readme.md", { validate: false });
+// const result = mdLinks("./src/example.md", { validate: true });
 // result
 //   .then((res) => {
 //     console.log(res);

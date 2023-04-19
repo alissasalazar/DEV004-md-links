@@ -16,8 +16,7 @@ describe("isAbs", () => {
 
 describe("changeRoute", () => {
   it("Debería cambiar una ruta relativa a una ruta absoluta", () => {
-    const pathAbs =
-      "C:\\Users\\pc\\Desktop\\PROGRAMACION\\PROYECTO-MD-LINKS\\DEV004-md-links\\src\\example.md";
+    const pathAbs = "C:\\Users\\pc\\Desktop\\PROGRAMACION\\PROYECTO-MD-LINKS\\DEV004-md-links\\src\\example.md";
     expect(api.changeRoute("./src/example.md")).toBe(pathAbs);
   });
 });
@@ -38,14 +37,14 @@ describe("readArch", () => {
   });
 });
 
-describe("readDir", () => {
+describe("readDirectory", () => {
   it("Debería leer un Directorio", () => {
-    const apiReadDir = api.readDir("./src/directorio");
+    const apireadDirectory = api.readDirectory("./src/directorio");
     const filesFind = ["example3.md", "example4.txt", "example5.md"];
     const filesMd = ["example3.md", "example5.md"];
-    expect(typeof apiReadDir).toBe("object");
-    expect(apiReadDir).toEqual(filesFind);
-    expect(apiReadDir).toEqual(expect.arrayContaining(filesMd));
+    expect(typeof apireadDirectory).toBe("object");
+    expect(apireadDirectory).toEqual(filesFind);
+    expect(apireadDirectory).toEqual(expect.arrayContaining(filesMd));
   });
 });
 

@@ -39,7 +39,7 @@ const readArch = (route) =>
 //   });
 
 // Leer contenido del directorio --> array
-const readDir = (route) => fs.readdirSync(route, "utf-8");
+const readDirectory = (route) => fs.readdirSync(route, "utf-8");
 
 //  Une los segmentos de ruta, especificados, en una sola ruta. --> una nueva ruta
 const joinRoute = (route, file) => path.join(route, file);
@@ -71,7 +71,7 @@ const getMdFiles = (route) => {
       }
     } else {
       // Leer todo el contenido del archivo
-      const contDirect = readDir(pathAbs);
+      const contDirect = readDirectory(pathAbs);
       if (contDirect.length === 0) {
         return "Directorio vacio";
       } else {
@@ -200,7 +200,7 @@ module.exports = {
   isAbs,
   changeRoute,
   readArch,
-  readDir,
+  readDirectory,
   joinRoute,
   hasExt,
   getMdFiles,
