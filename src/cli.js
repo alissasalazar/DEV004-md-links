@@ -43,7 +43,7 @@ if (proc.argv[2] === "--help") {
       const broken = `Broken: ${bronkenStats(res)}`;
       const option1 = proc.argv[4] === "--stats" && proc.argv[3] === "--validate";
       const option2 = proc.argv[4] === "--validate" && proc.argv[3] === "--stats";
-      const option3 = proc.argv[3] === "--validate" && proc.argv[4] === undefined
+      const option3 = proc.argv[3] === "--validate" && proc.argv[4] === undefined;
       
       if (option1 || option2) {
         console.log(`${total}\n${unique}\n${broken}`);
@@ -51,6 +51,8 @@ if (proc.argv[2] === "--help") {
         console.log(`${total}\n${unique}`);
       } else if (option3) {
         console.log(res);
+      } else {
+        console.log(colors.bgRed("Escribir una opcion para poder validar la ruta o revisar si se escribio correctamente la opcion"))
       }
     })
     .catch((err) => console.log(err));

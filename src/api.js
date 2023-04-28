@@ -109,6 +109,7 @@ const justMdFiles = (ruta) => {
   return arrmdFiles;
 };
 // console.log("que da just", justMdFiles("./src/directorio/example3.md"))
+
 // Obtener array de promesas
 const arrayPromises = (ruta) =>
   justMdFiles(ruta).map((file) => {

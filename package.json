@@ -22,7 +22,9 @@
   "scripts": {
     "start": "node ./src/api.js",
     "index": "node ./src/index.js",
-    "test": "jest --coverage"
+    "eslint": "eslint --ext .js src/ test/",
+    "test": "jest --coverage",
+    "pretest": "npm run eslint"
   },
   "repository": {
     "type": "git",

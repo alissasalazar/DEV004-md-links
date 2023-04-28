@@ -108,13 +108,6 @@ describe("justMdFiles", () => {
   });
 });
 
-// describe("arrayPromises", () => {
-//   it("Deberia devolver un array de promesas", () => {
-//     const result = api.arrayPromises("./src/directorio");
-//     const rest = [ Promise {} ]
-//     expect(result.).toBe(rest);
-//   });
-// });
 
 describe("getPropertiesFiles", () => {
   it("Deberia devolver las propiedades de los links que tiene el archivo", () => {

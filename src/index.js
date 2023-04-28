@@ -15,7 +15,7 @@ const mdLinks = (path, options = {}) => {
               resolve(res);
             })
             .catch((err) => {
-              resolve(err);
+              reject(err);
             });
         } 
       } else {
@@ -29,7 +29,7 @@ const mdLinks = (path, options = {}) => {
               });
             })
             .catch((err) => {
-              resolve(err);
+              reject(err);
             });
         } 
       }
@@ -49,6 +49,7 @@ const bronkenStats = (links) => {
   return brokenLinks.length;
 };
 // Cantidad de links unicos 
+// Set no permite valores repetidos
 // usaremos "..." para descomponer los elementos del set 
 const uniqueStats = (links) => {
   const uniqueLinks = [...new Set(links.map((link) => link.href))];
